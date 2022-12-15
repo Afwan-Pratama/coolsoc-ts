@@ -26,12 +26,10 @@ const Home: NextPage = () => {
   const handleSendPost = (e: any) => {
     e.preventDefault();
 
-    if (session.data !== undefined) {
-      createPost.mutate({
-        userId: session.data.user.id,
-        content: content,
-      });
-    }
+    createPost.mutate({
+      userId: session.data?.user ? session.data.user?.id : "null",
+      content: content,
+    });
   };
 
   return (
