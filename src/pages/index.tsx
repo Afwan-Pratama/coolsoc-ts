@@ -1,20 +1,37 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { signIn, signOut, useSession, getSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 import { trpc } from "../utils/trpc";
 import { requireAuth } from "../utils/requireAuth";
+import React, { useState } from "react";
+
+type Post = {
+  userId: any;
+  content: string;
+};
 
 const Home: NextPage = () => {
+  const [content, setContent] = useState<string>("");
+
   const hello = trpc.example.hello.useQuery({ text: "from tRPC" });
+
+  const getAllPosts = trpc.posts.getAll.useQuery();
+
+  const session = useSession();
+
+  const createPost = trpc.posts.createPost.useMutation();
 
   const handleSendPost = (e: any) => {
     e.preventDefault();
 
-    const cek = trpc.posts.getAll.useQuery();
-
-    console.log(cek);
+    if (session.data !== undefined) {
+      createPost.mutate({
+        userId: session.data.user.id,
+        content: content,
+      });
+    }
   };
 
   return (
@@ -30,6 +47,13 @@ const Home: NextPage = () => {
             Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
           </h1>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
+            <input
+              type="text"
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+              }}
+            />
             <button
               className="bg-purple-400 text-4xl text-white"
               onClick={handleSendPost}
@@ -42,6 +66,12 @@ const Home: NextPage = () => {
               {hello.data ? hello.data.greeting : "Loading tRPC query..."}
             </p>
             <AuthShowcase />
+            {getAllPosts.data?.map((item) => (
+              <div key={item.id}>
+                <p className="text-purple-500">{item.user.name}</p>
+                <p className="text-white">{item.content}</p>
+              </div>
+            ))}
           </div>
         </div>
       </main>
