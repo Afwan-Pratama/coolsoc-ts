@@ -18,6 +18,11 @@ export const postsRouter = router({
             name: true,
           },
         },
+        comments: {
+          select: {
+            content: true,
+          },
+        },
       },
     });
   }),
