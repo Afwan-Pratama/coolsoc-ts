@@ -11,6 +11,16 @@ datasource db {
   relationMode = "prisma" 
 }
 
+// // local database
+// datasource db {
+//   provider = "sqlite"
+//   // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+//   // Further reading:
+//   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+//   // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+//   url      = env("DATABASE_URL")
+// }
+
 model Example {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -45,21 +55,44 @@ model Session {
 }
 
 model Posts {
+  id       String     @id @unique @default(uuid())
+  userId   String
+  content  String
+  createdAt DateTime  @default(now())
+  user     User       @relation(fields: [userId], references: [id])
+  comments Comments[]
+  likes    Likes[]
+}
+
+model Comments {
   id      String @id @unique @default(uuid())
   userId  String
-  content String
+  postId  String
+  content String 
+  createdAt DateTime  @default(now())
   user    User   @relation(fields: [userId], references: [id])
+  posts   Posts  @relation(fields: [postId], references: [id])
+}
+
+model Likes {
+  id            String @id @unique @default(uuid())
+  userId        String 
+  postId        String
+  user          User    @relation(fields: [userId], references: [id])
+  posts         Posts   @relation(fields: [postId], references: [id])
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   posts         Posts[]
+  comment       Comments[]
+  likes         Likes[]
 }
 
 model VerificationToken {

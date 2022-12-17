@@ -12,10 +12,22 @@ export const postsRouter = router({
     }),
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.posts.findMany({
+      orderBy: {},
       include: {
         user: {
           select: {
             name: true,
+          },
+        },
+        comments: {
+          select: {
+            content: true,
+          },
+        },
+        likes: {
+          select: {
+            id: true,
+            userId: true,
           },
         },
       },
