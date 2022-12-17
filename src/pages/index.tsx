@@ -64,6 +64,9 @@ const Home: NextPage = () => {
                   currentUser={
                     session.data?.user ? session.data.user?.id : "null"
                   }
+                  handleRefetch={() => {
+                    getAllPosts.refetch();
+                  }}
                 />
               </div>
             ))}
